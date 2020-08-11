@@ -1,7 +1,9 @@
 Issues:
+
 Template contains errors.: Template format error: Unresolved resource dependencies [pArtifactS3Key, pArtifactS3BucketName, pLogLevel] in the Resources block of the template.
 
 Diagnosis:
+
 The issue was that !Ref can only works for Logical ID that exists within the template.
 
 Resolution
