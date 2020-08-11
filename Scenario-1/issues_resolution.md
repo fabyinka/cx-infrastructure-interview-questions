@@ -4,7 +4,7 @@ Template contains errors.: Template format error: Unresolved resource dependenci
 Diagnosis:
 The issue was that !Ref can only works for Logical ID that exists within the template.
 
-resolution
+Resolution
 
 Specified the relevant SSM parameters for pArtifactS3Key, pArtifactS3BucketName and pLogLevel as below. Another possible way to resolve this would have been to create a template that manages all the parameters and then use the Export/Import feature of CloudFormation to reference them between stacks.
 
