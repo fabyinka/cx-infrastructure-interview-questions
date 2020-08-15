@@ -14,8 +14,25 @@ Parameters:
   pArtifactS3Key:
     Default: ArtifactKey
     Description: Name of the Artifact S3 Key
-    Type: AWS::S3::S3Artifact::pArtifactS3Key
+    Type: AWS::S3::S3Artkey::pArtifactS3Key
   pArtifactS3BucketName:
     Description: Name of artifact bucketname
-    Type: AWS::S3::S3BucketName::pArtifactS3BucketName
+    Type: AWS::S3::cs3bucket::pArtifactS3BucketName
+  pLogLevel:
+    Description: verbosity level of function loggers
+    Type: String
+    Default: DEBUG
+    AllowedValues:
+      - CRITICAL
+      - ERROR
+      - WARNING
+      - INFO
+      - DEBUG
+
+
+1ssue 2:
+Template contains errors.: Circular dependency between resources: [rLambdaFunction, rLambdaFunctionAliasErrorAlarm, rLambdaFunctionVersionErrorAlarm, pFunctionAliasName]
+
+Investigating resolution
+
 

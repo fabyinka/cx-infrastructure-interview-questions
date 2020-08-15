@@ -1,20 +1,26 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: A template for creating S3 Bucket and use to upload the packaged python lambda source code to
+Description: Scenarion 2 Template 1 - S3 Source Code Bucket to upload the packaged python lambda
+  source code to
 Resources:
   CS3Bucket:
-    Type: 'AWS::S3::Bucket'
+    Type: AWS::S3::Bucket
     Properties:
-      BucketName: cs.s3.bucket
-      
+      BucketName: cs3bucket
+
   LambdaFunctionResource:
-    Type: 'AWS::Lambda::Function'
+    Type: AWS::Lambda::Function
     Properties:
       FunctionName: CsLambdaCF
       code:
-        S3Bucket: cs.s3.bucket
+        S3Bucket: cs3bucket
         S3Key: lambda.zip
       Description: This will be used to run the lambda python code
       Handler: lambda.lambda_handler
       Role: 'arn:aws:iam::123456789012:role/lambda-role'
       Runtime: python3.7
       Timeout: 120
+
+Outputs:
+  S3BucketName:
+    Description: The S3 bucket name for the code deployment
+    Value: !Ref CS3Bucket
