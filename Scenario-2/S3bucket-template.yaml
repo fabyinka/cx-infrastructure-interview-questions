@@ -1,6 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Scenarion 2 Template 1 - S3 Source Code Bucket to upload the packaged python lambda
-  source code to
 Resources:
   CS3Bucket:
     Type: AWS::S3::Bucket
