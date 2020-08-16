@@ -1,12 +1,8 @@
 AWSTemplateFormatVersion: 2010-09-09
-
 Description: ECS CX Interview Questions Scenario 2 Template 2
-
-Transform: AWS::Serverless-2016-10-31
-
+Transform: 'AWS::Serverless-2016-10-31'
 Metadata:
-
-  AWS::CloudFormation::Interface:
+  'AWS::CloudFormation::Interface':
     ParameterGroups:
       - Label:
           default: Lambda configuration
@@ -14,6 +10,7 @@ Metadata:
           - pArtifactS3BucketName
           - pArtifactS3Key
           - pLogLevel
+          - pRegion
     ParameterLabels:
       pArtifactS3BucketName:
         default: What is the bucket name of the source code?
@@ -21,31 +18,31 @@ Metadata:
         default: What is the file name of the source code?
       pLogLevel:
         default: What level of logging for the Lambda?
-
+      pRegion:
+        default: What is the region of this table?
 Parameters:
-
   pArtifactS3BucketName:
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$
-    ConstraintDescription: bucket name can include numbers, lowercase
-      letters, uppercase letters, periods (.), and hyphens (-). It cannot start or
+    AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$'
+    ConstraintDescription: >-
+      bucket name can include numbers, lowercase letters, uppercase letters,
+      periods (.), and hyphens (-). It cannot start or end with a hyphen (-).
+    Description: >-
+      S3 bucket name for the Cfn assets. bucket name can include numbers,
+      lowercase letters, uppercase letters, and hyphens (-). It cannot start or
       end with a hyphen (-).
-    Description: S3 bucket name for the Cfn assets. bucket name
-      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
-      It cannot start or end with a hyphen (-).
     Type: String
-
   pArtifactS3Key:
-    AllowedPattern: ^[0-9a-zA-Z-\/\.]*$
-    ConstraintDescription: key can include numbers, lowercase letters,
-      uppercase letters, hyphens (-), and forward slash (/). It cannot start or end
-      with forward slash (/) because they are automatically appended.
-    Description: S3 key for the Lambda zipfile. key
-      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
-      forward slash (/). It cannot start or end with forward slash (/) because they
-      are automatically appended.
+    AllowedPattern: '^[0-9a-zA-Z-\/\.]*$'
+    ConstraintDescription: >-
+      key can include numbers, lowercase letters, uppercase letters, hyphens
+      (-), and forward slash (/). It cannot start or end with forward slash (/)
+      because they are automatically appended.
+    Description: >-
+      S3 key for the Lambda zipfile. key can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/). It cannot start or
+      end with forward slash (/) because they are automatically appended.
     Type: String
     Default: GetItemDynamoDbLambda.zip
-
   pLogLevel:
     Description: verbosity level of function loggers
     Type: String
@@ -56,52 +53,71 @@ Parameters:
       - WARNING
       - INFO
       - DEBUG
+  pRegion:
+    Description: Name of region. leave blank for current region only.
+    Type: CommaDelimitedList
 
 Resources:
-
   rGetCustomerInformationAppFunctionRole:
-    Type: AWS::IAM::Role
+    Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service:
                 - lambda.amazonaws.com
             Action:
-              - sts:AssumeRole
+              - 'sts:AssumeRole'
       Path: /
       Policies:
-      # Add policy to read dynamodb
+        - PolicyName: DynamoRead
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:BatchGetItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:PutItem'
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
 
-  # Complete Lambda resource based on requirements
   rGetCustomerInformationAppFunction:
-    Type: AWS::Serverless::Function
+    Type: 'AWS::Serverless::Function'
+    #DependsOn: rCustomerInformationDynamoDb
     Properties:
+      Handler: get_item.lambda_handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref rCustomerInformationDynamoDb
+          TABLE_REGION: !Ref Region
+          LOG_LEVEL: !Ref pLogLevel
+      Runtime: python3.7
       CodeUri:
-        Bucket: # Bucket Name from parameters
-        Key: # Key from parameters
-
-  # Complete DynamoDb resource for string attribute "PhoneNumber"
+        Bucket: !Ref pArtifactS3BucketName
+        Key: !Ref pArtifactS3Key
+      Timeout: 10
+      
   rCustomerInformationDynamoDb:
-    Type: AWS::DynamoDB::Table
+    Type: 'AWS::DynamoDB::Table'
     DeletionPolicy: Delete
     Properties:
+      AttributeDefinitions:
+        - AttributeName: PhoneNumber
+          AttributeType: S
       BillingMode: PAY_PER_REQUEST
-
 Outputs:
-
   GetCustomerInformationAppFunctionRole:
     Description: IAM function role Arn for the Get Customer Information App Function
-    Value: # Complete me
-
+    Value: !Ref rGetCustomerInformationAppFunctionRole
   GetCustomerInformationLambdaFunction:
     Description: Arn of Get Customer information Lambda Function
-    Value: # Complete me
-
+    Value: null
   CustomerInformationDynamoDb:
     Description: Customer Information Dynamo DB Table name
-    Value: # Complete me
+    Value: !Ref rCustomerInformationDynamoDb
+
