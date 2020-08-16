@@ -72,6 +72,7 @@ Resources:
               - 'sts:AssumeRole'
       Path: /
       Policies:
+      # Add policy to read dynamodb
         - PolicyName: DynamoRead
           PolicyDocument:
             Version: 2012-10-17
@@ -86,6 +87,7 @@ Resources:
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
 
+  # Complete Lambda resource based on requirement
   rGetCustomerInformationAppFunction:
     Type: 'AWS::Serverless::Function'
     #DependsOn: rCustomerInformationDynamoDb
@@ -101,7 +103,8 @@ Resources:
         Bucket: !Ref pArtifactS3BucketName
         Key: !Ref pArtifactS3Key
       Timeout: 10
-      
+
+  # Complete DynamoDb resource for string attribute "PhoneNumber"
   rCustomerInformationDynamoDb:
     Type: 'AWS::DynamoDB::Table'
     DeletionPolicy: Delete
